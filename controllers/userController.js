@@ -1,4 +1,5 @@
-const { User } = require('../database/models/user');
+const db = require('../database');
+const User = db.User;
 const { Op } = require('sequelize');
 const bcrypt = require('bcrypt');
 
@@ -71,7 +72,7 @@ exports.getCurrentUserProfile = async (req, res) => {
   try {
     
     const user = await User.findByPk(req.user.id, {
-      attributes: ['id', 'email', 'profileImage', 'role', 'createdAt', 'updatedAt'],
+      attributes: ['id', 'name', 'email', 'profileImage', 'role', 'createdAt', 'updatedAt'],
     });
 
     if (!user) {
@@ -90,7 +91,7 @@ exports.editCurrentUserProfile = [
   upload.single('profileImage'),
   async (req, res) => {
     try {
-      const { email, password } = req.body;
+      const { name, email, password } = req.body;
       const newProfileImage = req.file ? req.file.path : undefined;
       const userId = req.user.id;
 
@@ -100,6 +101,9 @@ exports.editCurrentUserProfile = [
       }
 
       const updates = {};
+      if (name) {
+        updates.name = name;
+      }
       if (email && email !== user.email) {
         const existingUser = await User.findOne({ where: { email } });
         if (existingUser && existingUser.id !== userId) {
@@ -118,7 +122,7 @@ exports.editCurrentUserProfile = [
       await User.update(updates, { where: { id: userId } });
 
       const updatedUser = await User.findByPk(userId, {
-        attributes: ['id', 'email', 'profileImage', 'role', 'createdAt', 'updatedAt'],
+        attributes: ['id', 'name', 'email', 'profileImage', 'role', 'createdAt', 'updatedAt'],
       });
 
       res.status(200).json({ user: updatedUser, message: 'Profile updated successfully.' });

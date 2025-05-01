@@ -3,18 +3,16 @@ const router = express.Router();
 const authController = require('../controllers/authController');
 const { body } = require('express-validator');
 const validate = require('../middleware/validationMiddleware');
+const { upload } = require('../utils/helpers');
 
 // User registration
 router.post('/register',
   [
+    upload.single('profileImage'),
     body('email').isEmail().withMessage('Invalid email address.'),
     body('password')
-      .isLength({ min: 8 })
-      .withMessage('Password must be at least 8 characters long.')
-      .matches(/[A-Z]/)
-      .withMessage('Password must contain at least one uppercase letter.')
-      .matches(/[a-z]/)
-      .withMessage('Password must contain at least one lowercase letter.')
+      .isLength({ min: 6 })
+      .withMessage('Password must be at least 6 characters long.')
   ],
   validate,
   authController.register

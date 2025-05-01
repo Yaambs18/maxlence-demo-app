@@ -1,48 +1,47 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { v4: uuidv4 } = require('uuid');
-const { User } = require('../database/models/user');
+const db = require('../database');
+const User = db.User;
 const { sendVerificationEmail, sendResetPasswordEmail } = require('../services/emailService');
-const { generateToken, upload } = require('../utils/helpers');
+const { generateToken } = require('../utils/helpers');
 
 // User Registration
-exports.register = [
-  upload.single('profileImage'),
-  async (req, res) => {
-    try {
-      const { email, password } = req.body;
-      const profileImage = req.file ? req.file.path : null;
+exports.register = async (req, res) => {
+  try {
+    const { name, email, password } = req.body;
+    const profileImage = req.file ? req.file.path : null;
 
-      // Check if user with this email already exists
-      const existingUser = await User.findOne({ where: { email } });
-      if (existingUser) {
-        return res.status(409).json({ message: 'Email already exists.' });
-      }
-
-      // Hash the password
-      const hashedPassword = await bcrypt.hash(password, 10);
-
-      const verificationToken = uuidv4();
-      const verificationTokenExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
-
-      const newUser = await User.create({
-        email,
-        password: hashedPassword,
-        profileImage,
-        verificationToken,
-        verificationTokenExpiry,
-      });
-
-      // Send verification email
-      await sendVerificationEmail(newUser.email, verificationToken);
-
-      res.status(201).json({ message: 'Registration successful. Please check your email for verification.' });
-    } catch (error) {
-      console.error('Error during registration: ', error);
-      res.status(500).json({ message: 'Registration failed.' });
+    // Check if user with this email already exists
+    const existingUser = await User.findOne({ where: { email } });
+    if (existingUser) {
+      return res.status(409).json({ message: 'Email already exists.' });
     }
+
+    // Hash the password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const verificationToken = uuidv4();
+    const verificationTokenExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+
+    const newUser = await User.create({
+      name,
+      email,
+      password: hashedPassword,
+      profileImage,
+      verificationToken,
+      verificationTokenExpiry,
+    });
+
+    // Send verification email
+    await sendVerificationEmail(newUser.email, verificationToken);
+
+    res.status(201).json({ message: 'Registration successful. Please check your email for verification.' });
+  } catch (error) {
+    console.error('Error during registration: ', error);
+    res.status(500).json({ message: 'Registration failed.' });
   }
-];
+};
 
 // User Login
 exports.login = async (req, res) => {

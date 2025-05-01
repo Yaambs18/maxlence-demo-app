@@ -7,6 +7,10 @@ module.exports = (sequelize, Sequelize) => {
       primaryKey: true,
       autoIncrement: true,
     },
+    name: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
     email: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -51,4 +55,6 @@ module.exports = (sequelize, Sequelize) => {
     tableName: 'users',
     timestamps: true,
   });
+
+  return User;
 }
