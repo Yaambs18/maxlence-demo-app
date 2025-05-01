@@ -3,6 +3,7 @@ require('dotenv').config();
 const cors = require('cors');
 
 const authRoutes = require('./routes/authRoutes');
+const userRoutes = require('./routes/userRoutes');
 const { sequelize } = require('./database/index');
 
 const app = express();
@@ -22,6 +23,7 @@ sequelize
 
 // Routes
 app.use('/auth', authRoutes);
+app.use('/users', userRoutes);
 
 app.use((err, req, res, next) => {
   console.error(err.stack);

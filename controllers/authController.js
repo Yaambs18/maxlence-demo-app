@@ -3,21 +3,7 @@ const jwt = require('jsonwebtoken');
 const { v4: uuidv4 } = require('uuid');
 const { User } = require('../database/models/user');
 const { sendVerificationEmail, sendResetPasswordEmail } = require('../services/emailService');
-const { generateToken } = require('../utils/helpers');
-const path = require('path');
-const multer = require('multer');
-
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-      cb(null, 'uploads/'); // Store uploaded images in the 'uploads/' directory
-    },
-    filename: (req, file, cb) => {
-      const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-      cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
-    },
-});
-  
-const upload = multer({ storage: storage });
+const { generateToken, upload } = require('../utils/helpers');
 
 // User Registration
 exports.register = [
