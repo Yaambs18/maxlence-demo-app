@@ -19,7 +19,7 @@ router.put('/me', userController.editCurrentUserProfile);
 router.get('/:id', checkRole('admin'), userController.getUserById);
 
 // Route to delete a user by ID
-router.delete('/users/:id', checkRole('admin'), userController.deleteUser);
+router.delete('/:id', checkRole('admin'), userController.deleteUser);
 
 
 module.exports = router;
